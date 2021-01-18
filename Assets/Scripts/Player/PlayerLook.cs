@@ -13,6 +13,7 @@ public class PlayerLook : MonoBehaviour
     [SerializeField] private Transform playerBody;
 
 
+    ScrollThrough lastHit;
     float xAxisClamp = 0.0f;
 
     void Awake()
@@ -73,16 +74,23 @@ public class PlayerLook : MonoBehaviour
     {
         RaycastHit hit;
 
+        bool move = false;
+
         if (Physics.Raycast(transform.position, transform.forward, out hit, maxDistance))
         {
             
-            if (hit.collider.CompareTag("object") && Input.GetKeyDown(KeyCode.E))
+            if (hit.collider.CompareTag("object"))
             {
-                Object obj = hit.collider.gameObject.GetComponent<Object>();
-
-                //do sth about the word
-                obj.ChangeObjectType();
+                lastHit = hit.collider.gameObject.GetComponent<ScrollThrough>();
+                lastHit.LookAt(true);
+                move = true;
             }
+        }
+
+        if (!move && lastHit != null)
+        {
+            lastHit.LookAt(false);
+            lastHit = null;
         }
     }
     

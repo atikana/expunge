@@ -8,6 +8,10 @@ public class Object : MonoBehaviour
     [SerializeField] Material activeMat;
     [SerializeField] Material inactiveMat;
 
+
+
+    bool inRange;
+
     public enum ObjectType
     {
         Active,
@@ -25,6 +29,9 @@ public class Object : MonoBehaviour
         {
             ChangeMaterial(inactiveMat);
         }
+
+
+ 
     }
     // Start is called before the first frame update
     void Start()
@@ -38,7 +45,7 @@ public class Object : MonoBehaviour
         
     }
 
-    public ObjectType GetObject()
+    public ObjectType GetObjectType()
     {
         return objectType;
     }
@@ -58,6 +65,9 @@ public class Object : MonoBehaviour
 
     }
 
+
+
+
     private void ChangeMaterial(Material mat)
     {
         Material[] mats = GetComponent<MeshRenderer>().materials;
@@ -66,4 +76,6 @@ public class Object : MonoBehaviour
        
         GetComponent<MeshRenderer>().materials = mats;
     }
+
+  
 }
