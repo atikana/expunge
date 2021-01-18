@@ -8,6 +8,8 @@ public class PlayerLook : MonoBehaviour
 
     [SerializeField] private float mouseSensitivity;
 
+    [SerializeField] private float maxDistance;
+
     [SerializeField] private Transform playerBody;
 
 
@@ -27,6 +29,7 @@ public class PlayerLook : MonoBehaviour
     void Update()
     {
         CameraRotation();
+        DrawRayCast();
     }
 
     void CameraRotation()
@@ -65,4 +68,22 @@ public class PlayerLook : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
     }
+
+    void DrawRayCast()
+    {
+        RaycastHit hit;
+
+        if (Physics.Raycast(transform.position, transform.forward, out hit, maxDistance))
+        {
+            
+            if (hit.collider.CompareTag("object") && Input.GetKeyDown(KeyCode.E))
+            {
+                Object obj = hit.collider.gameObject.GetComponent<Object>();
+
+                //do sth about the word
+                obj.ChangeObjectType();
+            }
+        }
+    }
+    
 }
