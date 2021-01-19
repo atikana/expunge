@@ -23,6 +23,7 @@ public class ScrollThrough : MonoBehaviour
     void Update()
     {
         Scroll();
+        ClickObject();
     }
 
     private void LateUpdate()
@@ -40,6 +41,7 @@ public class ScrollThrough : MonoBehaviour
         {
             inRange = false;
             lastSelect = GetComponent<Object>();
+            lastSelect.SelectObject();
         }
 
     }
@@ -60,7 +62,9 @@ public class ScrollThrough : MonoBehaviour
                     if (t.GetComponent<Object>() != null)
                     {
                         found = true;
+                        lastSelect.SelectObject();
                         lastSelect = t.GetComponent<Object>();
+                        lastSelect.SelectObject(true);
                         break;
                     }
                 }
@@ -70,7 +74,9 @@ public class ScrollThrough : MonoBehaviour
             {
                 if (lastSelect.transform.parent != null  && lastSelect.transform.parent.GetComponent<Object>() != null)
                 {
+                    lastSelect.SelectObject();
                     lastSelect = GetComponent<Object>();
+                    lastSelect.SelectObject(true);
                 }
             }
 
@@ -83,8 +89,9 @@ public class ScrollThrough : MonoBehaviour
             Debug.Log("backward");
             if (lastSelect.transform.parent != null && lastSelect.transform.parent.GetComponent<Object>() != null)
             {
-               
+                lastSelect.SelectObject();
                 lastSelect = lastSelect.transform.parent.gameObject.GetComponent<Object>();
+                lastSelect.SelectObject(true);
             }
             else
             {
@@ -99,11 +106,21 @@ public class ScrollThrough : MonoBehaviour
 
                             if (t.GetComponent<Object>() != null)
                             {
-                                found = true;
+                                lastSelect.SelectObject();
                                 lastSelect = t.GetComponent<Object>();
+                                lastSelect.SelectObject(true);
+                                found = true;
                                 break;
                             }
                         }
+
+                        if (!found)
+                        {
+                            break;
+                        }
+
+
+                       
                     }
                     else
                     {
@@ -118,5 +135,27 @@ public class ScrollThrough : MonoBehaviour
         }
 
         
+    }
+
+    private void ClickObject()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            // select last click
+            lastSelect.ChangeObjectType();
+
+            if (lastSelect.GetObjectType() == Object.ObjectType.Active)
+            {
+                // move up to the parent
+
+                if (lastSelect.transform.parent != null && lastSelect.transform.parent.GetComponent<Object>() != null)
+                {
+                    lastSelect.SelectObject();
+                    lastSelect = lastSelect.transform.parent.gameObject.GetComponent<Object>();
+                    lastSelect.SelectObject(true);
+                }
+            }
+
+        }
     }
 }

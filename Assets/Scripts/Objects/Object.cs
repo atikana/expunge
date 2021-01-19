@@ -7,10 +7,13 @@ public class Object : MonoBehaviour
     [SerializeField] ObjectType objectType;
     [SerializeField] Material activeMat;
     [SerializeField] Material inactiveMat;
+    [SerializeField] Material selectActiveMat;
+    [SerializeField] Material selectInactiveMat;
 
 
 
     bool inRange;
+    MeshRenderer meshRenderer;
 
     public enum ObjectType
     {
@@ -21,16 +24,21 @@ public class Object : MonoBehaviour
 
     private void Awake()
     {
+        meshRenderer = GetComponent<MeshRenderer>();
         if (objectType == ObjectType.Active)
         {
             ChangeMaterial(activeMat);
+      
         }
         else
         {
             ChangeMaterial(inactiveMat);
+ 
         }
 
+       
 
+       
  
     }
     // Start is called before the first frame update
@@ -56,6 +64,7 @@ public class Object : MonoBehaviour
         {
             objectType = ObjectType.Inactive;
             ChangeMaterial(inactiveMat);
+            UpdateInnerObject();
         }
         else
         {
@@ -65,7 +74,33 @@ public class Object : MonoBehaviour
 
     }
 
+    public void SelectObject(bool select = false)
+    {
+        if (objectType == ObjectType.Active)
+        {
+            if (select)
+            {
+                ChangeMaterial(selectActiveMat);
+            }
+            else
+            {
+                ChangeMaterial(activeMat);
+            }
+        }
+        else
+        {
 
+            if (select)
+            {
+                ChangeMaterial(selectInactiveMat);
+            }
+
+            else
+            {
+                ChangeMaterial(inactiveMat);
+            }
+        }
+    }
 
 
     private void ChangeMaterial(Material mat)
@@ -76,6 +111,21 @@ public class Object : MonoBehaviour
        
         GetComponent<MeshRenderer>().materials = mats;
     }
+
+    private void UpdateInnerObject()
+    {
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            Transform t = transform.GetChild(i);
+
+            if (t.GetComponent<Object>() != null)
+            {
+              ///
+            }
+        }
+    }
+
+ 
 
   
 }
