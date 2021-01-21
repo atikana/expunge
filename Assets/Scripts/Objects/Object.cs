@@ -13,7 +13,11 @@ public class Object : MonoBehaviour
 
 
     bool inRange;
+    bool updateMesh;
+    bool meshStatus;
     MeshRenderer meshRenderer;
+
+
 
     public enum ObjectType
     {
@@ -50,7 +54,10 @@ public class Object : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (updateMesh)
+        {
+            UpdateMesh();
+        }
     }
 
     public ObjectType GetObjectType()
@@ -64,12 +71,15 @@ public class Object : MonoBehaviour
         {
             objectType = ObjectType.Inactive;
             ChangeMaterial(inactiveMat);
-            UpdateInnerObject();
+            UpdateInnerObject(true);
+
+
         }
         else
         {
             objectType = ObjectType.Active;
             ChangeMaterial(activeMat);
+            UpdateInnerObject(false);
         }
 
     }
@@ -112,7 +122,7 @@ public class Object : MonoBehaviour
         GetComponent<MeshRenderer>().materials = mats;
     }
 
-    private void UpdateInnerObject()
+    private void UpdateInnerObject(bool b)
     {
         for (int i = 0; i < transform.childCount; i++)
         {
@@ -120,9 +130,22 @@ public class Object : MonoBehaviour
 
             if (t.GetComponent<Object>() != null)
             {
-              ///
+                t.GetComponent<Object>().SetUpdateMesh(b);
             }
         }
+    }
+
+    private void UpdateMesh()
+    {
+        meshRenderer.enabled = meshStatus;
+        UpdateInnerObject(meshStatus);
+        updateMesh = false;
+    }
+
+    public void SetUpdateMesh(bool b)
+    {
+        updateMesh = true;
+        meshStatus = b;
     }
 
  
