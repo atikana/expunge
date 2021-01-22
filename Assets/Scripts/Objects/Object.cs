@@ -10,9 +10,6 @@ public class Object : MonoBehaviour
     [SerializeField] Material selectActiveMat;
     [SerializeField] Material selectInactiveMat;
 
-
-
-    bool inRange;
     bool updateMesh;
     bool meshStatus;
     MeshRenderer meshRenderer;
@@ -39,11 +36,6 @@ public class Object : MonoBehaviour
             ChangeMaterial(inactiveMat);
  
         }
-
-       
-
-       
- 
     }
     // Start is called before the first frame update
     void Start()
@@ -146,6 +138,12 @@ public class Object : MonoBehaviour
     {
         updateMesh = true;
         meshStatus = b;
+
+    }
+
+    public void UpdateLeftOverMesh()
+    {
+        meshRenderer.enabled = true;
     }
 
  

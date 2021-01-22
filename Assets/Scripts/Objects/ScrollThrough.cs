@@ -8,15 +8,20 @@ public class ScrollThrough : MonoBehaviour
     bool inRange;
     Object lastSelect;
 
+    PlayerController playerController;
+
 
     private void Awake()
     {
+
         lastSelect = GetComponent<Object>();
+        playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+
     }
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
@@ -24,11 +29,12 @@ public class ScrollThrough : MonoBehaviour
     {
         Scroll();
         ClickObject();
+        PickUp();
     }
 
     private void LateUpdate()
     {
-        
+
     }
 
     public void LookAt(bool b)
@@ -44,8 +50,8 @@ public class ScrollThrough : MonoBehaviour
         else
         {
             inRange = false;
-            lastSelect = GetComponent<Object>();
             lastSelect.SelectObject();
+            lastSelect = GetComponent<Object>();
         }
 
     }
@@ -56,7 +62,6 @@ public class ScrollThrough : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Tab)) // forward
         {
             // loop through the child of the object LUL?
-            Debug.Log("forward");
             if (lastSelect.GetObjectType() == Object.ObjectType.Inactive)
             {
                 for (int i = 0; i < lastSelect.transform.childCount; i++)
@@ -76,7 +81,7 @@ public class ScrollThrough : MonoBehaviour
 
             if (!found)
             {
-                if (lastSelect.transform.parent != null  && lastSelect.transform.parent.GetComponent<Object>() != null)
+                if (lastSelect.transform.parent != null && lastSelect.transform.parent.GetComponent<Object>() != null)
                 {
                     lastSelect.SelectObject();
                     lastSelect = GetComponent<Object>();
@@ -84,13 +89,9 @@ public class ScrollThrough : MonoBehaviour
                 }
             }
 
-            Debug.Log(gameObject.name + "  script  " + lastSelect.name);
-
-
         }
         else if (Input.GetKeyDown(KeyCode.LeftShift)) // backward
         {
-            Debug.Log("backward");
             if (lastSelect.transform.parent != null && lastSelect.transform.parent.GetComponent<Object>() != null)
             {
                 lastSelect.SelectObject();
@@ -122,7 +123,7 @@ public class ScrollThrough : MonoBehaviour
                             break;
                         }
 
-                       
+
                     }
                     else
                     {
@@ -130,13 +131,11 @@ public class ScrollThrough : MonoBehaviour
                     }
                 }
 
-                
-            }
 
-            Debug.Log(gameObject.name + "  script  " + lastSelect.name);
+            }
         }
 
-        
+
     }
 
     private void ClickObject()
@@ -182,10 +181,97 @@ public class ScrollThrough : MonoBehaviour
                 {
                     lastSelect.SelectObject(true);
                 }
-                
+
 
             }
 
         }
+    }
+
+    private void PickUp()
+    {
+        if (Input.GetKeyDown(KeyCode.E) && playerController.CheckIfCarrying())
+        {
+            playerController.Carrying();
+
+            Transform attachInactive = null;
+            Transform attachActive = lastSelect.transform;
+            Transform pickUp = null;
+            bool hasInactive = false;
+            bool hasParent = false;
+
+            Object temp = lastSelect.transform.GetComponent<Object>();
+
+            if (lastSelect.transform.parent != null && lastSelect.transform.parent.GetComponent<Object>() != null)
+            {
+                attachInactive = lastSelect.transform.parent;
+                hasParent = true;
+            }
+
+            while (true)
+            {
+                bool found = false;
+
+                if (temp.GetObjectType() == Object.ObjectType.Active)
+                {
+                    if (!pickUp)
+                    {
+                        pickUp = temp.transform;
+                    }
+
+                    if (attachActive)
+                    {
+                        temp.transform.parent = attachActive;
+                    }
+
+                    
+
+                    attachActive = temp.transform;
+
+                }
+                else
+                {
+                    if (attachInactive)
+                    {
+                        temp.transform.parent = attachInactive;
+                    }
+                    else
+                    {
+                        hasInactive = true;
+                        lastSelect = temp;
+                    }
+
+                    attachInactive = temp.transform;
+                    temp.UpdateLeftOverMesh();
+                }
+
+
+                for (int i = 0; i < temp.transform.childCount; i++)
+                {
+                    if ((temp = temp.transform.GetChild(i).GetComponent<Object>()) != null)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    break;
+                }
+
+
+            }
+
+            if (!hasInactive && hasParent)
+            {
+                lastSelect = lastSelect.transform.parent.GetComponent<Object>();
+            }
+
+            pickUp.tag = "pickup";
+            pickUp.SetParent(playerController.transform.GetChild(0).GetChild(0));
+
+        }
+        
     }
 }

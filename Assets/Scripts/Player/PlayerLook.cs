@@ -16,14 +16,17 @@ public class PlayerLook : MonoBehaviour
     ScrollThrough lastHit;
     float xAxisClamp = 0.0f;
 
+    PlayerController playerController;
+
     void Awake()
     {
+        playerController = transform.parent.GetComponent<PlayerController>();
         LockCursor();
     }
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
@@ -78,14 +81,16 @@ public class PlayerLook : MonoBehaviour
 
         if (Physics.Raycast(transform.position, transform.forward, out hit, maxDistance))
         {
-            
+
             if (hit.collider.CompareTag("object"))
             {
                 lastHit = hit.collider.gameObject.GetComponent<ScrollThrough>();
                 lastHit.LookAt(true);
                 move = true;
             }
+
         }
+
 
         if (!move && lastHit != null)
         {
@@ -93,5 +98,6 @@ public class PlayerLook : MonoBehaviour
             lastHit = null;
         }
     }
-    
 }
+    
+

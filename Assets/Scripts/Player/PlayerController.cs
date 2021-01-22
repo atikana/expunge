@@ -24,6 +24,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private KeyCode jumpKey;
 
     bool isJumping;
+    bool isCarrying;
 
     private void Awake()
     {
@@ -120,5 +121,16 @@ public class PlayerController : MonoBehaviour
 
         controller.slopeLimit = 45.0f;
         isJumping = false;
+    }
+
+
+    public bool CheckIfCarrying()
+    {
+        return !isCarrying;
+    }
+
+    public void Carrying()
+    {
+        isCarrying = true;
     }
 }
