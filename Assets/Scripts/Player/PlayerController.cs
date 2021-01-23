@@ -26,6 +26,8 @@ public class PlayerController : MonoBehaviour
     bool isJumping;
     bool isCarrying;
 
+    Transform item;
+
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
@@ -133,4 +135,18 @@ public class PlayerController : MonoBehaviour
     {
         isCarrying = true;
     }
+
+    public void AddCarryItem(Transform t)
+    {
+        t.tag = "pickup";
+        t.SetParent(transform.GetChild(0).GetChild(0));
+        item = t;
+    }
+
+    public Transform returnItem()
+    {
+        return item;
+    }
+
+
 }

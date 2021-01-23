@@ -297,7 +297,10 @@ public class ScrollThrough : MonoBehaviour
         {
            if (int.Parse(temp.name) > int.Parse(playerController.returnItem().name))
             {
-
+               
+                // how to fucking add now lmao
+                
+               
             }
             else
             {
