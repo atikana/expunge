@@ -27,15 +27,24 @@ public class ScrollThrough : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Scroll();
-        ClickObject();
-        PickUp();
+        if (Input.GetKeyDown(KeyCode.Tab)) // forward
+        {
+            ScrollUp();
+        }
+        else if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            ScrollDown();
+        }
+        else if (Input.GetMouseButtonDown(0))
+        {
+            ClickObject();
+        }
+        else if (Input.GetKeyDown(KeyCode.E))
+        {
+            PressE();
+        }
     }
 
-    private void LateUpdate()
-    {
-
-    }
 
     public void LookAt(bool b)
     {
@@ -56,11 +65,10 @@ public class ScrollThrough : MonoBehaviour
 
     }
 
-    private void Scroll()
+    private void ScrollUp()
     {
+ 
         bool found = false;
-        if (Input.GetKeyDown(KeyCode.Tab)) // forward
-        {
             // loop through the child of the object LUL?
             if (lastSelect.GetObjectType() == Object.ObjectType.Inactive)
             {
@@ -88,190 +96,217 @@ public class ScrollThrough : MonoBehaviour
                     lastSelect.SelectObject(true);
                 }
             }
+    }
+
+
+    private void ScrollDown()
+    {
+
+        if (lastSelect.transform.parent != null && lastSelect.transform.parent.GetComponent<Object>() != null)
+        {
+            lastSelect.SelectObject();
+            lastSelect = lastSelect.transform.parent.gameObject.GetComponent<Object>();
+            lastSelect.SelectObject(true);
+        }
+        else
+        {
+            // find the last inner object that is not select lul
+            while (true)
+            {
+                if (lastSelect.GetObjectType() == Object.ObjectType.Inactive)
+                {
+                    for (int i = 0; i < lastSelect.transform.childCount; i++)
+                    {
+                        Transform t = lastSelect.transform.GetChild(i);
+
+                        if (t.GetComponent<Object>() != null)
+                        {
+                            lastSelect.SelectObject();
+                            lastSelect = t.GetComponent<Object>();
+                            lastSelect.SelectObject(true);
+                            break;
+                        }
+                    }
+
+                    if (lastSelect.transform.childCount == 0)
+                    {
+                        break;
+                    }
+
+
+                }
+                else
+                {
+                    break;
+                }
+            }
+
 
         }
-        else if (Input.GetKeyDown(KeyCode.LeftShift)) // backward
+
+    }
+
+    private void ClickObject()
+    {
+
+        // select last click
+        lastSelect.ChangeObjectType();
+
+        if (lastSelect.GetObjectType() == Object.ObjectType.Active)
         {
+            // move up to the parent
+
             if (lastSelect.transform.parent != null && lastSelect.transform.parent.GetComponent<Object>() != null)
             {
                 lastSelect.SelectObject();
                 lastSelect = lastSelect.transform.parent.gameObject.GetComponent<Object>();
                 lastSelect.SelectObject(true);
             }
-            else
-            {
-                // find the last inner object that is not select lul
-                while (true)
-                {
-                    if (lastSelect.GetObjectType() == Object.ObjectType.Inactive)
-                    {
-                        for (int i = 0; i < lastSelect.transform.childCount; i++)
-                        {
-                            Transform t = lastSelect.transform.GetChild(i);
-
-                            if (t.GetComponent<Object>() != null)
-                            {
-                                lastSelect.SelectObject();
-                                lastSelect = t.GetComponent<Object>();
-                                lastSelect.SelectObject(true);
-                                break;
-                            }
-                        }
-
-                        if (lastSelect.transform.childCount == 0)
-                        {
-                            break;
-                        }
-
-
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-
-
-            }
         }
+        else
+        {
 
+            // move down to the next lv
+
+            bool found = false;
+
+            for (int i = 0; i < lastSelect.transform.childCount; i++)
+            {
+
+                Transform t = lastSelect.transform.GetChild(i);
+
+                if (t.GetComponent<Object>() != null)
+                {
+                    found = true;
+
+                    lastSelect = t.GetComponent<Object>();
+                    lastSelect.SelectObject(true);
+                }
+            }
+
+            if (!found)
+            {
+                lastSelect.SelectObject(true);
+            }
+
+        }
 
     }
 
-    private void ClickObject()
+    private void PressE()
     {
-        if (Input.GetMouseButtonDown(0))
+
+        if (playerController.CheckIfCarrying())
         {
-            // select last click
-            lastSelect.ChangeObjectType();
-
-            if (lastSelect.GetObjectType() == Object.ObjectType.Active)
-            {
-                // move up to the parent
-
-                if (lastSelect.transform.parent != null && lastSelect.transform.parent.GetComponent<Object>() != null)
-                {
-                    lastSelect.SelectObject();
-                    lastSelect = lastSelect.transform.parent.gameObject.GetComponent<Object>();
-                    lastSelect.SelectObject(true);
-                }
-            }
-            else
-            {
-
-                // move down to the next lv
-
-                bool found = false;
-
-                for (int i = 0; i < lastSelect.transform.childCount; i++)
-                {
-
-                    Transform t = lastSelect.transform.GetChild(i);
-
-                    if (t.GetComponent<Object>() != null)
-                    {
-                        found = true;
-
-                        lastSelect = t.GetComponent<Object>();
-                        lastSelect.SelectObject(true);
-                    }
-                }
-
-                if (!found)
-                {
-                    lastSelect.SelectObject(true);
-                }
-
-
-            }
-
+            PickUp();
         }
+        else
+        {
+            DropObject();
+        }
+
+
     }
 
     private void PickUp()
     {
-        if (Input.GetKeyDown(KeyCode.E) && playerController.CheckIfCarrying())
+        playerController.Carrying();
+
+        Transform attachInactive = null;
+        Transform attachActive = lastSelect.transform;
+        Transform pickUp = null;
+        bool hasInactive = false;
+        bool hasParent = false;
+
+        Object temp = lastSelect.transform.GetComponent<Object>();
+
+        if (lastSelect.transform.parent != null && lastSelect.transform.parent.GetComponent<Object>() != null)
         {
-            playerController.Carrying();
+            attachInactive = lastSelect.transform.parent;
+            hasParent = true;
+        }
 
-            Transform attachInactive = null;
-            Transform attachActive = lastSelect.transform;
-            Transform pickUp = null;
-            bool hasInactive = false;
-            bool hasParent = false;
+        while (true)
+        {
+            bool found = false;
 
-            Object temp = lastSelect.transform.GetComponent<Object>();
-
-            if (lastSelect.transform.parent != null && lastSelect.transform.parent.GetComponent<Object>() != null)
+            if (temp.GetObjectType() == Object.ObjectType.Active)
             {
-                attachInactive = lastSelect.transform.parent;
-                hasParent = true;
-            }
-
-            while (true)
-            {
-                bool found = false;
-
-                if (temp.GetObjectType() == Object.ObjectType.Active)
+                if (!pickUp)
                 {
-                    if (!pickUp)
-                    {
-                        pickUp = temp.transform;
-                    }
+                    pickUp = temp.transform;
+                }
 
-                    if (attachActive)
-                    {
-                        temp.transform.parent = attachActive;
-                    }
+                if (attachActive)
+                {
+                    temp.transform.parent = attachActive;
+                }
 
-                    
 
-                    attachActive = temp.transform;
 
+                attachActive = temp.transform;
+
+            }
+            else
+            {
+                if (attachInactive)
+                {
+                    temp.transform.parent = attachInactive;
                 }
                 else
                 {
-                    if (attachInactive)
-                    {
-                        temp.transform.parent = attachInactive;
-                    }
-                    else
-                    {
-                        hasInactive = true;
-                        lastSelect = temp;
-                    }
-
-                    attachInactive = temp.transform;
-                    temp.UpdateLeftOverMesh();
+                    hasInactive = true;
+                    lastSelect = temp;
                 }
 
+                attachInactive = temp.transform;
+                temp.UpdateLeftOverMesh();
+            }
 
-                for (int i = 0; i < temp.transform.childCount; i++)
-                {
-                    if ((temp = temp.transform.GetChild(i).GetComponent<Object>()) != null)
-                    {
-                        found = true;
-                        break;
-                    }
-                }
 
-                if (!found)
+            for (int i = 0; i < temp.transform.childCount; i++)
+            {
+                if ((temp = temp.transform.GetChild(i).GetComponent<Object>()) != null)
                 {
+                    found = true;
                     break;
                 }
-
-
             }
 
-            if (!hasInactive && hasParent)
+            if (!found)
             {
-                lastSelect = lastSelect.transform.parent.GetComponent<Object>();
+                break;
             }
 
-            pickUp.tag = "pickup";
-            pickUp.SetParent(playerController.transform.GetChild(0).GetChild(0));
 
         }
-        
+
+        if (!hasInactive && hasParent)
+        {
+            lastSelect = lastSelect.transform.parent.GetComponent<Object>();
+        }
+
+        playerController.AddCarryItem(pickUp);
+
     }
+
+    private bool DropObject()
+    {
+        Object temp = lastSelect;
+        while (true)
+        {
+           if (int.Parse(temp.name) > int.Parse(playerController.returnItem().name))
+            {
+
+            }
+            else
+            {
+                break;
+            }
+        }
+        return false;
+    }
+
+    
+
 }
