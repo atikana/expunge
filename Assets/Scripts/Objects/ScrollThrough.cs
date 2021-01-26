@@ -260,7 +260,7 @@ public class ScrollThrough : MonoBehaviour
                 }
 
                 attachInactive = temp.transform;
-                temp.UpdateLeftOverMesh();
+                temp.UpdateLeftOverMesh(true);
             }
 
 
@@ -290,24 +290,159 @@ public class ScrollThrough : MonoBehaviour
 
     }
 
-    private bool DropObject()
+    private void DropObject()
     {
-        Object temp = lastSelect;
-        while (true)
+        Transform pickUp = playerController.returnItem();
+
+        if (CheckDropObject(pickUp))
         {
-           if (int.Parse(temp.name) > int.Parse(playerController.returnItem().name))
+            Transform temp = lastSelect.transform;
+
+            bool found = false;
+ 
+
+
+            while (true)
             {
-               
-                // how to fucking add now lmao
-                
-               
-            }
-            else
-            {
-                break;
+                if (pickUp != null)
+                {
+                    int k = int.Parse(pickUp.name);
+
+                    for (int i = 0; i < temp.transform.childCount; i++)
+                    {
+                        Transform t = temp.transform.GetChild(i);
+
+                        if (t.GetComponent<Object>() != null)
+                        {
+                            found = true;
+
+                            int j = int.Parse(temp.name);
+
+                            if ( j > k)
+                            {
+
+                                temp = t;
+                            }
+                            else
+                            {
+
+
+                                while (j < k)
+                                {
+                                   //add here orz
+                                }
+                            }
+
+                           
+
+                            break;
+                        }
+                    }
+
+
+                    if (!found)
+                    {
+                        pickUp.tag = "Object";
+                        pickUp.parent = temp.transform;
+                        playerController.RemoveCarryItem();
+                        break;
+                    }
+
+                }
             }
         }
-        return false;
+    }
+
+
+   
+
+    private bool CheckDropObject(Transform pickUp)
+    {
+        Transform temp = lastSelect.transform;
+
+        bool found = false;
+
+        int k = int.Parse(pickUp.name);
+
+        if (int.Parse(temp.name) > k)
+        {
+            while (true)
+            {
+                if (pickUp != null)
+                {
+                    k = int.Parse(pickUp.name);
+
+                    // how to fucking add now lmao
+                    for (int i = 0; i < temp.transform.childCount; i++)
+                    {
+                        Transform t = temp.transform.GetChild(i);
+
+                        if (t.GetComponent<Object>() != null)
+                        {
+
+                            found = true;
+
+                            // need to check the inner child;
+                            int j = int.Parse(temp.name);
+
+                            if (j > k)
+                            {
+                                // move to the new lv
+                                temp = t;
+
+                            }
+                            else if (j == k)
+                            {
+                                // the same layer already exist;
+                                return false;
+                            }
+                            else 
+                            {
+                                // j < k
+
+                                while (j < k)
+                                {
+                                    pickUp = CheckDropObjectHelper(pickUp);
+                                    k = int.Parse(pickUp.name);
+                                }
+                            }
+                            break;
+                        }
+                    }
+
+                    if (!found)
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    return true;
+                }
+            }
+        }
+        else
+        {
+            return false;
+        }
+
+
+    }
+
+    Transform CheckDropObjectHelper(Transform t)
+    {
+
+        for (int i = 0; i < t.childCount; i++)
+        {
+            Transform child = t.transform.GetChild(i);
+
+            if (child.GetComponent<Object>() != null)
+            {
+                return child;
+            }
+        }
+
+        return null;
     }
 
     

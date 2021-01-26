@@ -141,10 +141,12 @@ public class Object : MonoBehaviour
 
     }
 
-    public void UpdateLeftOverMesh()
+    public void UpdateLeftOverMesh(bool b)
     {
-        meshRenderer.enabled = true;
+        meshRenderer.enabled = b;
     }
+
+    
 
  
 
