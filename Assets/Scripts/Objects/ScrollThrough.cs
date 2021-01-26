@@ -299,8 +299,8 @@ public class ScrollThrough : MonoBehaviour
             Transform temp = lastSelect.transform;
 
             bool found = false;
- 
 
+            bool add = false;
 
             while (true)
             {
@@ -318,7 +318,7 @@ public class ScrollThrough : MonoBehaviour
 
                             int j = int.Parse(temp.name);
 
-                            if ( j > k)
+                            if (j > k)
                             {
 
                                 temp = t;
@@ -326,14 +326,28 @@ public class ScrollThrough : MonoBehaviour
                             else
                             {
 
+                                Transform attach = temp;
+                                add = true;
 
                                 while (j < k)
                                 {
-                                   //add here orz
+                                    //add here orz
+
+                                    pickUp.parent = attach;
+                                    attach = pickUp;
+                                    pickUp = CheckDropObjectHelper(pickUp);
+                                    // unhook the gameobject
+                                    k = int.Parse(pickUp.name);
                                 }
+
+                                t.transform.parent = attach;
+                                temp = t;
                             }
 
-                           
+                            if (add)
+                            {
+                                t.GetComponent<Object>().UpdateLeftOverMesh(false);
+                            }
 
                             break;
                         }
@@ -438,6 +452,7 @@ public class ScrollThrough : MonoBehaviour
 
             if (child.GetComponent<Object>() != null)
             {
+                child.parent = null;
                 return child;
             }
         }
