@@ -148,5 +148,10 @@ public class PlayerController : MonoBehaviour
         return item;
     }
 
+    public void RemoveCarryItem()
+    {
+        item = null;
+    }
+
 
 }
