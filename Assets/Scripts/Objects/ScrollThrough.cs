@@ -305,8 +305,7 @@ public class ScrollThrough : MonoBehaviour
                 int k = int.Parse(pickUp.name);
                 int j = int.Parse(temp.name);
 
-                bool addBefore = false;
-                Transform attach = null;
+ 
 
 
 
@@ -317,9 +316,9 @@ public class ScrollThrough : MonoBehaviour
                 else if (j > k)
                 {
                     add = true;
-                    attach = temp.parent;
-                    addName = pickUp.name;
-                    addBefore = true;
+                    Transform attach = temp.parent;
+
+
 
                     while (j > k)
                     {
@@ -328,10 +327,23 @@ public class ScrollThrough : MonoBehaviour
                         SetDropObject(pickUp, attach);
                         attach = pickUp;
                         pickUp = DropObjectHelper(pickUp);
+
+
+
+                        if (!pickUp)
+                        {
+
+                            temp.parent = attach;
+                            temp.GetComponent<Object>().UpdateLeftOverMesh(false);
+                            break;
+                        }
+
                         k = int.Parse(pickUp.name);
                         
                      
                     }
+
+
 
                 }
 
@@ -341,18 +353,14 @@ public class ScrollThrough : MonoBehaviour
                     {
                         Transform t = temp.transform.GetChild(i);
 
-                        if (t.name != addName && t.GetComponent<Object>() != null)
+                        if (t.GetComponent<Object>() != null)
                         {
                             if (add)
                             {
                                 t.GetComponent<Object>().UpdateLeftOverMesh(false);
 
                             }
-                            if (addBefore)
-                            {
-                                t.parent = attach;
-                            }
-
+ 
 
                             temp = t;
                             break;
@@ -408,14 +416,18 @@ public class ScrollThrough : MonoBehaviour
                 while (j > k)
                 {
                     pickUp = DropObjectHelper(pickUp, true);
+
+                    if (!pickUp)
+                    {
+                        return true;
+                    }
+
                     k = int.Parse(pickUp.name);
                 }
             }
 
-            if (!pickUp)
-            {
-                return true;
-            }
+
+          
 
             if (temp.transform.childCount > 0)
             {
