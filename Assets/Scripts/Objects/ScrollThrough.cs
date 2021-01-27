@@ -67,35 +67,35 @@ public class ScrollThrough : MonoBehaviour
 
     private void ScrollUp()
     {
- 
+
         bool found = false;
-            // loop through the child of the object LUL?
-            if (lastSelect.GetObjectType() == Object.ObjectType.Inactive)
+        // loop through the child of the object LUL?
+        if (lastSelect.GetObjectType() == Object.ObjectType.Inactive)
+        {
+            for (int i = 0; i < lastSelect.transform.childCount; i++)
             {
-                for (int i = 0; i < lastSelect.transform.childCount; i++)
-                {
-                    Transform t = lastSelect.transform.GetChild(i);
+                Transform t = lastSelect.transform.GetChild(i);
 
-                    if (t.GetComponent<Object>() != null)
-                    {
-                        found = true;
-                        lastSelect.SelectObject();
-                        lastSelect = t.GetComponent<Object>();
-                        lastSelect.SelectObject(true);
-                        break;
-                    }
-                }
-            }
-
-            if (!found)
-            {
-                if (lastSelect.transform.parent != null && lastSelect.transform.parent.GetComponent<Object>() != null)
+                if (t.GetComponent<Object>() != null)
                 {
+                    found = true;
                     lastSelect.SelectObject();
-                    lastSelect = GetComponent<Object>();
+                    lastSelect = t.GetComponent<Object>();
                     lastSelect.SelectObject(true);
+                    break;
                 }
             }
+        }
+
+        if (!found)
+        {
+            if (lastSelect.transform.parent != null && lastSelect.transform.parent.GetComponent<Object>() != null)
+            {
+                lastSelect.SelectObject();
+                lastSelect = GetComponent<Object>();
+                lastSelect.SelectObject(true);
+            }
+        }
     }
 
 
@@ -132,8 +132,6 @@ public class ScrollThrough : MonoBehaviour
                     {
                         break;
                     }
-
-
                 }
                 else
                 {
@@ -242,8 +240,6 @@ public class ScrollThrough : MonoBehaviour
                     temp.transform.parent = attachActive;
                 }
 
-
-
                 attachActive = temp.transform;
 
             }
@@ -298,12 +294,11 @@ public class ScrollThrough : MonoBehaviour
         {
             Transform temp = lastSelect.transform;
 
-            bool found = false;
-
             bool add = false;
 
             while (true)
             {
+                bool found = false;
                 if (pickUp != null)
                 {
                     int k = int.Parse(pickUp.name);
@@ -318,7 +313,7 @@ public class ScrollThrough : MonoBehaviour
 
                             int j = int.Parse(temp.name);
 
-                            if (j > k)
+                            if (j < k)
                             {
 
                                 temp = t;
@@ -329,13 +324,14 @@ public class ScrollThrough : MonoBehaviour
                                 Transform attach = temp;
                                 add = true;
 
-                                while (j < k)
+                                while (j > k)
                                 {
                                     //add here orz
 
                                     pickUp.parent = attach;
                                     attach = pickUp;
-                                    pickUp = CheckDropObjectHelper(pickUp);
+                                    SetDropPositionAndRotation(pickUp);
+                                    pickUp = DropObjectHelper(pickUp);
                                     // unhook the gameobject
                                     k = int.Parse(pickUp.name);
                                 }
@@ -343,6 +339,7 @@ public class ScrollThrough : MonoBehaviour
                                 t.transform.parent = attach;
                                 temp = t;
                             }
+
 
                             if (add)
                             {
@@ -356,8 +353,9 @@ public class ScrollThrough : MonoBehaviour
 
                     if (!found)
                     {
-                        pickUp.tag = "Object";
+                        pickUp.tag = "object";
                         pickUp.parent = temp.transform;
+                        SetDropPositionAndRotation(pickUp);
                         playerController.RemoveCarryItem();
                         break;
                     }
@@ -367,83 +365,68 @@ public class ScrollThrough : MonoBehaviour
         }
     }
 
+    private void SetDropPositionAndRotation(Transform drop)
+    {
 
-   
+        drop.transform.localPosition = new Vector3(0, 0, 0);
+        drop.localRotation = Quaternion.Euler(0, 0, 0);
+    }
+
+
 
     private bool CheckDropObject(Transform pickUp)
     {
         Transform temp = lastSelect.transform;
+        
 
-        bool found = false;
-
-        int k = int.Parse(pickUp.name);
-
-        if (int.Parse(temp.name) > k)
+        while (true)
         {
-            while (true)
+            int k = int.Parse(pickUp.name);
+            int j = int.Parse(temp.name);
+
+            if (j == k)
             {
-                if (pickUp != null)
+                return false;
+            }
+            else
+            {
+                while (j > k)
                 {
+                    pickUp = DropObjectHelper(pickUp, true);
                     k = int.Parse(pickUp.name);
-
-                    // how to fucking add now lmao
-                    for (int i = 0; i < temp.transform.childCount; i++)
-                    {
-                        Transform t = temp.transform.GetChild(i);
-
-                        if (t.GetComponent<Object>() != null)
-                        {
-
-                            found = true;
-
-                            // need to check the inner child;
-                            int j = int.Parse(temp.name);
-
-                            if (j > k)
-                            {
-                                // move to the new lv
-                                temp = t;
-
-                            }
-                            else if (j == k)
-                            {
-                                // the same layer already exist;
-                                return false;
-                            }
-                            else 
-                            {
-                                // j < k
-
-                                while (j < k)
-                                {
-                                    pickUp = CheckDropObjectHelper(pickUp);
-                                    k = int.Parse(pickUp.name);
-                                }
-                            }
-                            break;
-                        }
-                    }
-
-                    if (!found)
-                    {
-                        return true;
-                    }
-                }
-                else
-                {
-                    return true;
                 }
             }
-        }
-        else
-        {
-            return false;
-        }
+
+            if (!pickUp)
+            {
+                return true;
+            }
+
+            if (temp.transform.childCount > 0)
+            {
+                for (int i = 0; i < temp.transform.childCount; i++)
+                {
+                    Transform t = temp.transform.GetChild(i);
+
+                    if (t.GetComponent<Object>() != null)
+                    {
+                        temp = t;
+                    }
+                }
+            }
+            else
+            {
+                return true;
+            }
 
 
+            
+
+        }
     }
 
-    Transform CheckDropObjectHelper(Transform t)
+
+    Transform DropObjectHelper(Transform t, bool check = false)
     {
 
         for (int i = 0; i < t.childCount; i++)
@@ -452,7 +435,10 @@ public class ScrollThrough : MonoBehaviour
 
             if (child.GetComponent<Object>() != null)
             {
-                child.parent = null;
+                if (!check)
+                {
+                    child.parent = null;
+                }
                 return child;
             }
         }

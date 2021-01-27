@@ -151,6 +151,7 @@ public class PlayerController : MonoBehaviour
     public void RemoveCarryItem()
     {
         item = null;
+        isCarrying = false;
     }
 
 
