@@ -197,6 +197,7 @@ public class ScrollThrough : MonoBehaviour
         if (playerController.CheckIfCarrying())
         {
             PickUp();
+            
         }
         else
         {
@@ -295,79 +296,93 @@ public class ScrollThrough : MonoBehaviour
             Transform temp = lastSelect.transform;
 
             bool add = false;
+            string addName = "";
+           
+            
 
             while (true)
             {
-                bool found = false;
-                if (pickUp != null)
-                {
-                    int k = int.Parse(pickUp.name);
+                int k = int.Parse(pickUp.name);
+                int j = int.Parse(temp.name);
 
+                bool addBefore = false;
+                Transform attach = null;
+
+
+
+                if (lastSelect.name == temp.name && j > k)
+                {
+                    break;
+                }
+                else if (j > k)
+                {
+                    add = true;
+                    attach = temp.parent;
+                    addName = pickUp.name;
+                    addBefore = true;
+
+                    while (j > k)
+                    {
+
+                        // find the child unattach child lul
+                        SetDropObject(pickUp, attach);
+                        attach = pickUp;
+                        pickUp = DropObjectHelper(pickUp);
+                        k = int.Parse(pickUp.name);
+                        
+                     
+                    }
+
+                }
+
+                if (temp.transform.childCount > 0)
+                {
                     for (int i = 0; i < temp.transform.childCount; i++)
                     {
                         Transform t = temp.transform.GetChild(i);
 
-                        if (t.GetComponent<Object>() != null)
+                        if (t.name != addName && t.GetComponent<Object>() != null)
                         {
-                            found = true;
-
-                            int j = int.Parse(temp.name);
-
-                            if (j < k)
-                            {
-
-                                temp = t;
-                            }
-                            else
-                            {
-
-                                Transform attach = temp;
-                                add = true;
-
-                                while (j > k)
-                                {
-                                    //add here orz
-
-                                    pickUp.parent = attach;
-                                    attach = pickUp;
-                                    SetDropPositionAndRotation(pickUp);
-                                    pickUp = DropObjectHelper(pickUp);
-                                    // unhook the gameobject
-                                    k = int.Parse(pickUp.name);
-                                }
-
-                                t.transform.parent = attach;
-                                temp = t;
-                            }
-
-
                             if (add)
                             {
                                 t.GetComponent<Object>().UpdateLeftOverMesh(false);
+
+                            }
+                            if (addBefore)
+                            {
+                                t.parent = attach;
                             }
 
+
+                            temp = t;
                             break;
                         }
                     }
 
+                }
+                else
+                {
 
-                    if (!found)
+                    if (pickUp)
                     {
-                        pickUp.tag = "object";
-                        pickUp.parent = temp.transform;
-                        SetDropPositionAndRotation(pickUp);
-                        playerController.RemoveCarryItem();
-                        break;
+                        //add leftover pick up here lul
+
+                        SetDropObject(pickUp, temp);
+
                     }
 
+                    playerController.RemoveCarryItem();
+                    break;
                 }
             }
+
         }
     }
 
-    private void SetDropPositionAndRotation(Transform drop)
+    private void SetDropObject(Transform drop, Transform parent)
     {
-
+        drop.parent = parent;
+        drop.tag = "object";
         drop.transform.localPosition = new Vector3(0, 0, 0);
         drop.localRotation = Quaternion.Euler(0, 0, 0);
     }
@@ -411,6 +426,7 @@ public class ScrollThrough : MonoBehaviour
                     if (t.GetComponent<Object>() != null)
                     {
                         temp = t;
+                        break;
                     }
                 }
             }
