@@ -27,21 +27,24 @@ public class ScrollThrough : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Tab)) // forward
+        if (inRange)
         {
-            ScrollUp();
-        }
-        else if (Input.GetKeyDown(KeyCode.LeftShift))
-        {
-            ScrollDown();
-        }
-        else if (Input.GetMouseButtonDown(0))
-        {
-            ClickObject();
-        }
-        else if (Input.GetKeyDown(KeyCode.E))
-        {
-            PressE();
+            if (Input.GetKeyDown(KeyCode.Tab)) // forward
+            {
+                ScrollUp();
+            }
+            else if (Input.GetKeyDown(KeyCode.LeftShift))
+            {
+                ScrollDown();
+            }
+            else if (Input.GetMouseButtonDown(0))
+            {
+                ClickObject();
+            }
+            else if (Input.GetKeyDown(KeyCode.E))
+            {
+                PressE();
+            }
         }
     }
 
@@ -194,7 +197,7 @@ public class ScrollThrough : MonoBehaviour
     private void PressE()
     {
 
-        if (playerController.CheckIfCarrying())
+        if (playerController.CheckIfCanCarry())
         {
             PickUp();
             
@@ -296,23 +299,17 @@ public class ScrollThrough : MonoBehaviour
             Transform temp = lastSelect.transform;
 
             bool add = false;
-            string addName = "";
            
-            
-
             while (true)
             {
                 int k = int.Parse(pickUp.name);
                 int j = int.Parse(temp.name);
 
- 
-
-
-
                 if (lastSelect.name == temp.name && j > k)
                 {
                     break;
                 }
+
                 else if (j > k)
                 {
                     add = true;
@@ -328,8 +325,6 @@ public class ScrollThrough : MonoBehaviour
                         attach = pickUp;
                         pickUp = DropObjectHelper(pickUp);
 
-
-
                         if (!pickUp)
                         {
 
@@ -339,11 +334,8 @@ public class ScrollThrough : MonoBehaviour
                         }
 
                         k = int.Parse(pickUp.name);
-                        
-                     
+                             
                     }
-
-
 
                 }
 
@@ -425,9 +417,6 @@ public class ScrollThrough : MonoBehaviour
                     k = int.Parse(pickUp.name);
                 }
             }
-
-
-          
 
             if (temp.transform.childCount > 0)
             {

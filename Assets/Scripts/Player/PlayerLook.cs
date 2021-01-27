@@ -88,6 +88,17 @@ public class PlayerLook : MonoBehaviour
                 lastHit.LookAt(true);
                 move = true;
             }
+            else if (!playerController.CheckIfCanCarry())
+            {
+                Transform t = playerController.returnItem();
+
+                t.parent = null;
+                t.gameObject.AddComponent<Rigidbody>().useGravity = true;
+                Destroy(t.gameObject.GetComponent<Rigidbody>());
+
+                playerController.RemoveCarryItem();
+
+            }
 
         }
 

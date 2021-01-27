@@ -126,7 +126,7 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    public bool CheckIfCarrying()
+    public bool CheckIfCanCarry()
     {
         return !isCarrying;
     }
