@@ -419,9 +419,6 @@ public class ScrollThrough : MonoBehaviour
                 return true;
             }
 
-
-            
-
         }
     }
 
